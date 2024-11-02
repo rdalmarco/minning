@@ -2,6 +2,7 @@ import os
 import xml.etree.ElementTree as ET
 import matplotlib.pyplot as plt
 from collections import defaultdict, Counter
+from packaging import version  # Importa o módulo de versionamento
 
 # Configurações
 output_dir = r'C:\minning\spotbugs_results'  # Caminho para os resultados XML
@@ -27,8 +28,12 @@ for xml_file in os.listdir(output_dir):
                 bug_counter_by_release[release_name][bug_type] += 1
                 print(f"Encontrado bug: {bug_type} na release {release_name}")
 
+# Ordena as releases usando a função de comparação do módulo 'packaging.version'
+sorted_releases = sorted(bug_counter_by_release.keys(), key=version.parse)
+
 # Gráfico de barras para cada release
-for release, bugs in bug_counter_by_release.items():
+for release in sorted_releases:
+    bugs = bug_counter_by_release[release]
     bug_types = list(bugs.keys())
     bug_counts = list(bugs.values())
 
@@ -44,8 +49,7 @@ for release, bugs in bug_counter_by_release.items():
 # Gráfico de linhas para o número total de bugs por release
 total_bugs_per_release = {release: sum(bugs.values()) for release, bugs in bug_counter_by_release.items()}
 
-# Ordena por release para garantir a sequência correta
-sorted_releases = sorted(total_bugs_per_release.keys())
+# Ordena os bugs por release para garantir a sequência correta
 sorted_bug_counts = [total_bugs_per_release[release] for release in sorted_releases]
 
 plt.figure(figsize=(12, 6))
